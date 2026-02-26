@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String          @id @default(cuid())
+  name      String
+  email     String          @unique
+  password  String
+  createdAt DateTime        @default(now()) @map("created_at")
+  updatedAt DateTime        @updatedAt @map("updated_at")
+  scrapes   ScrapeRequest[]
+
+  @@map("users")
+}
+
+model ScrapeRequest {
+  id        String        @id @default(cuid())
+  url       String
+  network   String        @default("facebook")
+  type      String        @default("reel")
+  status    String        @default("pending")
+  taskId    String?       @unique @map("task_id")
+  userId    String        @map("user_id")
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  result    ScrapeResult?
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@map("scrape_requests")
+}
+
+model ScrapeResult {
+  id          String        @id @default(cuid())
+  contentType String        @default("unknown") @map("content_type")
+  reactions   Int           @default(0)
+  comments    Int           @default(0)
+  shares      Int           @default(0)
+  views       Int           @default(0)
+  error       String?
+  scrapedAt   DateTime?     @map("scraped_at")
+  rawData     Json?         @map("raw_data")
+  requestId   String        @unique @map("request_id")
+  request     ScrapeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  @@map("scrape_results")
+}
