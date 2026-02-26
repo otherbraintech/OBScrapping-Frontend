@@ -109,7 +109,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentScrapes.map((scrape) => (
+                {recentScrapes.map((scrape: any) => (
                   <div key={scrape.id} className="flex items-center justify-between p-4 rounded-xl border border-zinc-800 hover:border-zinc-700 bg-zinc-900/50 transition">
                     <div className="flex flex-col space-y-1">
                       <span className="text-sm font-medium text-white truncate max-w-[200px] md:max-w-md">

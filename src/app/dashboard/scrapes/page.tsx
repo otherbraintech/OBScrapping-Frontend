@@ -73,7 +73,7 @@ export default async function ScrapesListPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              scrapes.map((scrape) => (
+              scrapes.map((scrape: any) => (
                 <TableRow key={scrape.id} className="hover:bg-white/5 border-zinc-800 transition">
                   <TableCell className="font-medium max-w-[200px] lg:max-w-md">
                     <div className="flex flex-col space-y-1">

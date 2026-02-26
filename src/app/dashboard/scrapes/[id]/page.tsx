@@ -127,7 +127,7 @@ export default async function ScrapeDetailPage({
 
       {metrics.length > 0 && (
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-          {metrics.map((metric) => (
+          {metrics.map((metric: any) => (
             <Card key={metric.label} className="bg-zinc-900 border-zinc-800 border overflow-hidden relative group">
               <div className={cn("absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition duration-500", metric.color.replace('text', 'from'))}></div>
               <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
