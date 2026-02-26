@@ -109,6 +109,16 @@ export default async function ScrapesListPage() {
                           <MessageSquare size={14} className="mr-1.5 text-blue-500" />
                           {scrape.result.comments}
                         </span>
+                        <span className="flex items-center" title="Compartidos">
+                          <Share2 size={14} className="mr-1.5 text-purple-500" />
+                          {scrape.result.shares}
+                        </span>
+                        {scrape.result.views > 0 && (
+                          <span className="flex items-center" title="Visualizaciones">
+                            <Eye size={14} className="mr-1.5 text-amber-500" />
+                            {scrape.result.views}
+                          </span>
+                        )}
                       </div>
                     ) : (
                       <span className="text-zinc-600 text-[10px]">Sin datos</span>
