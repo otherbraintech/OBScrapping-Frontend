@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { RetryButton } from "@/components/dashboard/retry-button";
 import { DeleteScrapeButton } from "@/components/dashboard/delete-button";
+import { AutoRefresh } from "@/components/dashboard/auto-refresh";
 
 export default async function ScrapesListPage() {
   const session = await getSession();
@@ -41,8 +42,11 @@ export default async function ScrapesListPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  const hasIncompleteScrapes = scrapes.some(s => s.status === 'pending' || s.status === 'processing');
+
   return (
     <div className="space-y-8">
+      <AutoRefresh enabled={hasIncompleteScrapes} interval={5000} />
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight text-white">Mis Scrapes</h2>
