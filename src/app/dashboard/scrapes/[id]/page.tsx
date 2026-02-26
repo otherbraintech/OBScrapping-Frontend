@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { RetryButton } from "@/components/dashboard/retry-button";
+import { DeleteScrapeButton } from "@/components/dashboard/delete-button";
 
 export default async function ScrapeDetailPage({
   params,
@@ -44,6 +45,13 @@ export default async function ScrapeDetailPage({
     where: { id, userId: session.user.id },
     include: { result: true },
   });
+
+  if (scrape) {
+    console.log("DEBUG: Raw Scrape Data from DB:", JSON.stringify(scrape, null, 2));
+    if (scrape.result) {
+      console.log("DEBUG: Raw Scrape Result Content:", JSON.stringify(scrape.result.rawData, null, 2));
+    }
+  }
 
   if (!scrape) {
     notFound();
@@ -78,7 +86,7 @@ export default async function ScrapeDetailPage({
                 {new Date(scrape.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
              </div>
              <Badge variant="outline" className="text-[10px] border-zinc-800 text-zinc-400 uppercase tracking-widest">
-                {scrape.network} • {scrape.type}
+                {scrape.network} • {scrape.result?.contentType || scrape.type}
              </Badge>
           </div>
         </div>
@@ -86,6 +94,7 @@ export default async function ScrapeDetailPage({
           {(scrape.status === "error" || scrape.status === "pending") && (
             <RetryButton id={scrape.id} variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" />
           )}
+          <DeleteScrapeButton id={scrape.id} variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-red-500" />
           <Button variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" asChild>
             <a href={scrape.url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" /> Ver Original
