@@ -44,14 +44,19 @@ export default function NewScrapePage() {
       });
 
       const data = await res.json();
+      console.log("DEBUG: Scrape response:", data);
 
       if (!res.ok) {
-        throw new Error(data.error || "Error al iniciar el scrape");
+        throw new Error(data.error || data.details || "Error al iniciar el scrape");
       }
 
-      router.push("/dashboard/scrapes");
-      router.refresh();
+      // Dar tiempo a la BD para propagar el cambio antes de la navegación
+      setTimeout(() => {
+        router.push("/dashboard/scrapes");
+        router.refresh();
+      }, 500);
     } catch (err: any) {
+      console.error("DEBUG: Submit error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
