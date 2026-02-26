@@ -30,7 +30,7 @@ import { RetryButton } from "@/components/dashboard/retry-button";
 export default async function ScrapeDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   const session = await getSession();
 

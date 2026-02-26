@@ -8,7 +8,7 @@ const SCRAPER_API_URL = process.env.SCRAPER_API_URL || 'https://intelexia-labs-o
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getSession();
