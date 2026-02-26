@@ -50,11 +50,8 @@ export default function NewScrapePage() {
         throw new Error(data.error || data.details || "Error al iniciar el scrape");
       }
 
-      // Dar tiempo a la BD para propagar el cambio antes de la navegación
-      setTimeout(() => {
-        router.push("/dashboard/scrapes");
-        router.refresh();
-      }, 500);
+      // Simplemente redirigir. Next.js se encargará de refrescar la ruta.
+      router.push("/dashboard/scrapes");
     } catch (err: any) {
       console.error("DEBUG: Submit error:", err);
       setError(err.message);
