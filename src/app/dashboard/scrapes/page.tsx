@@ -25,6 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { RetryButton } from "@/components/dashboard/retry-button";
 
 export default async function ScrapesListPage() {
   const session = await getSession();
@@ -119,8 +120,11 @@ export default async function ScrapesListPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-x-2">
-                       <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-white" asChild>
+                      <div className="flex items-center justify-end gap-x-2">
+                         {scrape.status === "error" && (
+                            <RetryButton id={scrape.id} showText={false} variant="ghost" className="h-8 w-8 text-red-400 hover:text-red-300 hover:bg-red-400/10" />
+                         )}
+                         <Button variant="ghost" size="icon" className="h-8 w-8 text-zinc-500 hover:text-white" asChild>
                           <a href={scrape.url} target="_blank" rel="noopener noreferrer">
                              <ExternalLink size={14} />
                           </a>

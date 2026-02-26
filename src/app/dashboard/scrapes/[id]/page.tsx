@@ -25,6 +25,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { RetryButton } from "@/components/dashboard/retry-button";
 
 export default async function ScrapeDetailPage({
   params,
@@ -82,6 +83,9 @@ export default async function ScrapeDetailPage({
           </div>
         </div>
         <div className="flex items-center gap-x-3">
+          {(scrape.status === "error" || scrape.status === "pending") && (
+            <RetryButton id={scrape.id} variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" />
+          )}
           <Button variant="outline" className="bg-zinc-900 border-zinc-800 text-zinc-400 hover:text-white" asChild>
             <a href={scrape.url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="mr-2 h-4 w-4" /> Ver Original
@@ -103,12 +107,15 @@ export default async function ScrapeDetailPage({
         <Card className="bg-red-500/5 border-red-500/20">
           <CardContent className="pt-6 flex items-start gap-x-4">
              <AlertCircle className="text-red-500 shrink-0" size={24} />
-             <div className="space-y-1">
-                <p className="font-bold text-red-500">Error en el procesamiento</p>
-                <p className="text-sm text-red-400/80 leading-relaxed">
-                   {scrape.result.error}
-                </p>
-             </div>
+              <div className="flex justify-between items-start w-full">
+                 <div className="space-y-1">
+                    <p className="font-bold text-red-500">Error en el procesamiento</p>
+                    <p className="text-sm text-red-400/80 leading-relaxed">
+                       {scrape.result.error}
+                    </p>
+                 </div>
+                 <RetryButton id={scrape.id} variant="default" className="bg-red-600 hover:bg-red-700 text-white border-none shrink-0" />
+              </div>
           </CardContent>
         </Card>
       )}
