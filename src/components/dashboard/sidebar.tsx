@@ -32,12 +32,6 @@ const routes = [
     href: "/dashboard/scrapes",
     color: "text-blue-400",
   },
-  {
-    label: "Reportes",
-    icon: BarChart3,
-    href: "/dashboard/reports",
-    color: "text-amber-400",
-  },
 ];
 
 export function Sidebar() {
