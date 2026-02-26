@@ -50,6 +50,10 @@ export default async function ScrapeDetailPage({
     console.log("DEBUG: Raw Scrape Data from DB:", JSON.stringify(scrape, null, 2));
     if (scrape.result) {
       console.log("DEBUG: Raw Scrape Result Content:", JSON.stringify(scrape.result.rawData, null, 2));
+      const rawData = scrape.result.rawData as any;
+      if (rawData?._debug?.html_snippet) {
+         console.log("DEBUG: HTML Snippet (Context):", rawData._debug.html_snippet);
+      }
     }
   }
 
