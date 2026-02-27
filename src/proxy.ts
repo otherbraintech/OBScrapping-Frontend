@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { decrypt } from '@/lib/auth';
+import { decrypt, updateSession } from '@/lib/auth';
 
 const protectedRoutes = ['/', '/dashboard', '/scrapes'];
 const publicRoutes = ['/login', '/register', '/api/webhook'];
@@ -18,6 +18,10 @@ export default async function proxy(req: NextRequest) {
 
   if (isPublicRoute && session && !path.startsWith('/api')) {
     return NextResponse.redirect(new URL('/dashboard', req.nextUrl));
+  }
+
+  if (session) {
+    return await updateSession(req);
   }
 
   return NextResponse.next();

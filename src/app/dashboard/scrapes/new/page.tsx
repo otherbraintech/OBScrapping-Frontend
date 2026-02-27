@@ -25,6 +25,8 @@ export default function NewScrapePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const [network, setNetwork] = useState("facebook");
+  const [type, setType] = useState("reel");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -33,8 +35,6 @@ export default function NewScrapePage() {
 
     const formData = new FormData(e.currentTarget);
     const url = formData.get("url");
-    const network = formData.get("network");
-    const type = formData.get("type");
 
     try {
       const res = await fetch("/api/scrapes", {
@@ -50,13 +50,13 @@ export default function NewScrapePage() {
         throw new Error(data.error || data.details || "Error al iniciar el scrape");
       }
 
-      // Simplemente redirigir. Next.js se encargará de refrescar la ruta.
+      // IMPORTANTE: Redirigir primero. No hacemos setLoading(false) aquí 
+      // para evitar re-renderizar un componente que el router está desmontando.
       router.push("/dashboard/scrapes");
     } catch (err: any) {
       console.error("DEBUG: Submit error:", err);
       setError(err.message);
-    } finally {
-      setLoading(false);
+      setLoading(false); // Solo volvemos a permitir acción si hubo error
     }
   };
 
@@ -92,7 +92,7 @@ export default function NewScrapePage() {
               <div className="relative">
                 <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
                 <Input 
-                  id="url" 
+                   id="url" 
                   name="url" 
                   placeholder="https://www.facebook.com/share/r/..." 
                   required 
@@ -104,7 +104,7 @@ export default function NewScrapePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label className="text-zinc-400">Red Social</Label>
-                <Tabs defaultValue="facebook" className="w-full">
+                <Tabs value={network} onValueChange={setNetwork} className="w-full">
                   <TabsList className="bg-zinc-800 border-zinc-700 w-full">
                     <TabsTrigger value="facebook" className="flex-1 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
                       Facebook
@@ -113,13 +113,12 @@ export default function NewScrapePage() {
                       Instagram
                     </TabsTrigger>
                   </TabsList>
-                  <input type="hidden" name="network" value="facebook" />
                 </Tabs>
               </div>
 
               <div className="space-y-2">
                 <Label className="text-zinc-400">Tipo de Contenido</Label>
-                <Tabs defaultValue="reel" className="w-full">
+                <Tabs value={type} onValueChange={setType} className="w-full">
                   <TabsList className="bg-zinc-800 border-zinc-700 w-full">
                     <TabsTrigger value="reel" className="flex-1 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
                       Reel
@@ -128,7 +127,6 @@ export default function NewScrapePage() {
                       Post
                     </TabsTrigger>
                   </TabsList>
-                  <input type="hidden" name="type" value="reel" />
                 </Tabs>
               </div>
             </div>

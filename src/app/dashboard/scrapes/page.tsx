@@ -128,7 +128,7 @@ export default async function ScrapesListPage() {
                       <span className="text-zinc-600 text-[10px]">Sin datos</span>
                     )}
                   </TableCell>
-                  <TableCell className="text-zinc-500 text-xs">
+                  <TableCell className="text-zinc-500 text-xs" suppressHydrationWarning>
                     <div className="flex items-center">
                       <Calendar size={12} className="mr-1.5" />
                       {new Date(scrape.createdAt).toLocaleDateString()}
