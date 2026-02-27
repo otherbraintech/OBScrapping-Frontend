@@ -30,16 +30,20 @@ export default function NewScrapePage() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (loading) return; // Prevent double submit
+    
     setLoading(true);
     setError("");
 
     const formData = new FormData(e.currentTarget);
     const url = formData.get("url");
+    const networkVal = formData.get("network") || network;
+    const typeVal = formData.get("type") || type;
 
     try {
       const res = await fetch("/api/scrapes", {
         method: "POST",
-        body: JSON.stringify({ url, network, type }),
+        body: JSON.stringify({ url, network: networkVal, type: typeVal }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -50,13 +54,13 @@ export default function NewScrapePage() {
         throw new Error(data.error || data.details || "Error al iniciar el scrape");
       }
 
-      // IMPORTANTE: Redirigir primero. No hacemos setLoading(false) aquí 
-      // para evitar re-renderizar un componente que el router está desmontando.
+      // Redirigimos sin actualizar setLoading(false) para evitar race conditions
+      // El componente se desmontará al navegar.
       router.push("/dashboard/scrapes");
     } catch (err: any) {
       console.error("DEBUG: Submit error:", err);
       setError(err.message);
-      setLoading(false); // Solo volvemos a permitir acción si hubo error
+      setLoading(false);
     }
   };
 
@@ -131,6 +135,9 @@ export default function NewScrapePage() {
               </div>
             </div>
 
+            <input type="hidden" name="network" value={network} />
+            <input type="hidden" name="type" value={type} />
+            
             <div className="p-4 rounded-xl border border-indigo-500/10 bg-indigo-500/5 flex gap-x-4">
                <Globe className="text-indigo-400 shrink-0 mt-1" size={20} />
                <div className="space-y-1">

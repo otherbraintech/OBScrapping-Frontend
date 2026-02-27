@@ -28,6 +28,7 @@ import Link from "next/link";
 import { RetryButton } from "@/components/dashboard/retry-button";
 import { DeleteScrapeButton } from "@/components/dashboard/delete-button";
 import { AutoRefresh } from "@/components/dashboard/auto-refresh";
+import { cn } from "@/lib/utils";
 
 export default async function ScrapesListPage() {
   const session = await getSession();
@@ -130,8 +131,8 @@ export default async function ScrapesListPage() {
                   </TableCell>
                   <TableCell className="text-zinc-500 text-xs" suppressHydrationWarning>
                     <div className="flex items-center">
-                      <Calendar size={12} className="mr-1.5" />
-                      {new Date(scrape.createdAt).toLocaleDateString()}
+                      <Calendar size={12} className="mr-1.5 text-zinc-400" />
+                      <span>{new Date(scrape.createdAt).toISOString().split('T')[0]}</span>
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
@@ -162,6 +163,3 @@ export default async function ScrapesListPage() {
   );
 }
 
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
-}
