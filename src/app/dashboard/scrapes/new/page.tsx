@@ -98,8 +98,8 @@ export default function NewScrapePage() {
             <div className="space-y-3">
               <Label htmlFor="url" className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">URL de Destino</Label>
               <div className="relative group">
-                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500"></div>
-                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors" />
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500 pointer-events-none"></div>
+                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors pointer-events-none" />
                 <Input 
                    id="url" 
                   name="url" 
