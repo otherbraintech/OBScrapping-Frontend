@@ -65,69 +65,74 @@ export default function NewScrapePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight text-white flex items-center">
-          <Search className="mr-3 text-indigo-500" />
-          Nueva Solicitud de Scraping
+    <div className="max-w-4xl mx-auto space-y-10 pb-20">
+      <div className="flex flex-col space-y-2">
+        <h2 className="text-4xl font-extrabold tracking-tight text-white flex items-center bg-clip-text text-transparent bg-gradient-to-r from-white to-zinc-500">
+          <div className="p-3 mr-4 bg-indigo-500/10 rounded-2xl border border-indigo-500/20 glow-indigo">
+            <Search className="h-6 w-6 text-indigo-400" />
+          </div>
+          Nueva Extracción
         </h2>
-        <p className="text-zinc-500 mt-1">
-          Ingresa la URL del contenido que deseas analizar. Soportamos Facebook Reels y Posts.
+        <p className="text-zinc-500 max-w-2xl leading-relaxed pl-16">
+          Nuestra IA procesará el contenido para extraer métricas de engagement, sentimientos y tendencias 
+          en tiempo real. Solo pega la URL y nosotros nos encargamos del resto.
         </p>
       </div>
 
-      <Card className="bg-zinc-900 border-zinc-800">
+      <Card className="glass-card shadow-2xl overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
         <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className="text-white text-lg">Configuración del Scrape</CardTitle>
+          <CardHeader className="border-b border-zinc-800/50 pb-8 pt-8">
+            <CardTitle className="text-white text-xl">Configuración de Inteligencia</CardTitle>
             <CardDescription className="text-zinc-500">
-              Define los parámetros para la extracción de datos.
+              Personaliza los parámetros de búsqueda para obtener mejores resultados.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-10 pt-10">
             {error && (
-              <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-500 rounded-md text-sm">
+              <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl text-sm flex items-center animate-in zoom-in-95 duration-300">
+                <LucideLoader2 className="mr-3 h-4 w-4" />
                 {error}
               </div>
             )}
             
-            <div className="space-y-2">
-              <Label htmlFor="url" className="text-zinc-400">URL del Contenido</Label>
-              <div className="relative">
-                <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <div className="space-y-3">
+              <Label htmlFor="url" className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">URL de Destino</Label>
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500"></div>
+                <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors" />
                 <Input 
                    id="url" 
                   name="url" 
                   placeholder="https://www.facebook.com/share/r/..." 
                   required 
-                  className="bg-zinc-800/50 border-zinc-700 text-white pl-10 focus-visible:ring-indigo-500"
+                  className="bg-zinc-950/50 border-zinc-800 h-14 text-white pl-12 rounded-xl focus-visible:ring-indigo-500/50 focus-visible:ring-offset-0 focus-visible:border-indigo-500/50 transition-all border-2"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-zinc-400">Red Social</Label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Fuente de Datos</Label>
                 <Tabs value={network} onValueChange={setNetwork} className="w-full">
-                  <TabsList className="bg-zinc-800 border-zinc-700 w-full">
-                    <TabsTrigger value="facebook" className="flex-1 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                  <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl">
+                    <TabsTrigger value="facebook" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                       Facebook
                     </TabsTrigger>
-                    <TabsTrigger value="instagram" disabled className="flex-1">
+                    <TabsTrigger value="instagram" disabled className="flex-1 opacity-50 cursor-not-allowed">
                       Instagram
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-zinc-400">Tipo de Contenido</Label>
+              <div className="space-y-3">
+                <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Formato</Label>
                 <Tabs value={type} onValueChange={setType} className="w-full">
-                  <TabsList className="bg-zinc-800 border-zinc-700 w-full">
-                    <TabsTrigger value="reel" className="flex-1 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                  <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl">
+                    <TabsTrigger value="reel" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                       Reel
                     </TabsTrigger>
-                    <TabsTrigger value="post" className="flex-1 data-[state=active]:bg-indigo-600 data-[state=active]:text-white">
+                    <TabsTrigger value="post" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
                       Post
                     </TabsTrigger>
                   </TabsList>
@@ -138,25 +143,34 @@ export default function NewScrapePage() {
             <input type="hidden" name="network" value={network} />
             <input type="hidden" name="type" value={type} />
             
-            <div className="p-4 rounded-xl border border-indigo-500/10 bg-indigo-500/5 flex gap-x-4">
-               <Globe className="text-indigo-400 shrink-0 mt-1" size={20} />
-               <div className="space-y-1">
-                  <p className="text-sm font-medium text-white">Scraping en segundo plano</p>
-                  <p className="text-xs text-zinc-500 leading-relaxed">
-                    El proceso puede tardar entre 1 y 3 minutos dependiendo de la complejidad del contenido. 
-                    Recibirás una notificación y el dashboard se actualizará automáticamente cuando los datos estén listos.
+            <div className="p-6 rounded-2xl border border-indigo-500/10 bg-indigo-500/5 flex gap-x-5 relative overflow-hidden group">
+               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Globe size={80} className="text-indigo-400 rotate-12" />
+               </div>
+               <div className="p-3 bg-indigo-500/10 rounded-xl h-fit border border-indigo-500/20">
+                 <Globe className="text-indigo-400" size={24} />
+               </div>
+               <div className="space-y-2">
+                  <p className="text-base font-bold text-white">Algoritmos de Alta Precisión</p>
+                  <p className="text-sm text-zinc-500 leading-relaxed max-w-xl">
+                    Utilizamos proxies residenciales de baja latencia para asegurar que la extracción sea indetectable 
+                    y sumamente precisa. El procesamiento ocurre en tiempo casi real.
                   </p>
                </div>
             </div>
           </CardContent>
-          <CardFooter className="bg-zinc-900/50 border-t border-zinc-800 pt-6">
+          <CardFooter className="bg-zinc-950/30 border-t border-zinc-800/50 p-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center text-xs text-zinc-500">
+               <span className="flex h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
+               Servidores listos para procesamiento
+            </div>
             <Button 
               type="submit" 
-              className="w-full md:w-auto ml-auto bg-indigo-600 hover:bg-indigo-700 text-white px-8"
+              className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-10 h-14 rounded-xl font-bold text-lg glow-indigo transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
               disabled={loading}
             >
-              {loading ? <LucideLoader2 className="animate-spin mr-2" size={18} /> : null}
-              Iniciar Extracción
+              {loading ? <LucideLoader2 className="animate-spin mr-3" size={20} /> : null}
+              {loading ? "Procesando..." : "Lanzar Extracción"}
             </Button>
           </CardFooter>
         </form>
