@@ -30,10 +30,17 @@ export default async function DashboardPage() {
 
   const recentScrapes = await prisma.scrapeRequest.findMany({
     where: { userId: session.user.id },
-    include: { result: true },
+    include: { 
+      result: {
+        include: {
+          posts: true
+        }
+      } 
+    },
     orderBy: { createdAt: 'desc' },
     take: 5
   });
+
 
   const stats = [
     {
@@ -148,21 +155,29 @@ export default async function DashboardPage() {
                         <div className="flex items-center gap-x-2 text-[10px] text-zinc-500 uppercase tracking-wider font-bold">
                           <span>{new Date(scrape.createdAt).toLocaleDateString()}</span>
                           <span className="h-1 w-1 bg-zinc-700 rounded-full" />
-                          <span>{scrape.network || 'facebook'}</span>
+                          <span>{scrape.result?.contentType || scrape.type}</span>
                         </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-x-6">
                       {scrape.status === "success" && scrape.result && (
                         <div className="hidden md:flex items-center gap-x-4 text-xs">
-                           <span className="flex items-center text-zinc-400 font-medium">
-                            <TrendingUp size={14} className="mr-1.5 text-emerald-400" /> 
-                            {scrape.result.reactions.toLocaleString()}
-                           </span>
-                           <span className="flex items-center text-zinc-400 font-medium">
-                            <MessageSquare size={14} className="mr-1.5 text-blue-400" /> 
-                            {scrape.result.comments.toLocaleString()}
-                           </span>
+                          {scrape.result.contentType === "page_feed" ? (
+                            <Badge variant="secondary" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 text-[10px]">
+                              {scrape.result.posts?.length || 0} publicaciones
+                            </Badge>
+                          ) : (
+                            <>
+                              <span className="flex items-center text-zinc-400 font-medium">
+                                <TrendingUp size={14} className="mr-1.5 text-emerald-400" /> 
+                                {scrape.result.reactions.toLocaleString()}
+                              </span>
+                              <span className="flex items-center text-zinc-400 font-medium">
+                                <MessageSquare size={14} className="mr-1.5 text-blue-400" /> 
+                                {scrape.result.comments.toLocaleString()}
+                              </span>
+                            </>
+                          )}
                         </div>
                       )}
                       <Badge className={cn(

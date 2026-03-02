@@ -32,8 +32,8 @@ export async function POST(req: Request) {
       },
     });
 
-    // Guardar o actualizar el resultado
-    await prisma.scrapeResult.upsert({
+    // Guardar o actualizar el resultado principal
+    const result = await prisma.scrapeResult.upsert({
       where: { requestId: scrapeRequest.id },
       update: {
         contentType: content_type || 'unknown',
@@ -57,6 +57,33 @@ export async function POST(req: Request) {
         rawData: data,
       },
     });
+
+    // Procesar posts múltiples si están presentes (Scraping Masivo)
+    if (data.posts && Array.isArray(data.posts)) {
+      console.log(`Guardando ${data.posts.length} posts para el resultado ${result.id}`);
+      
+      // Limpiar posts anteriores y guardar los nuevos en una transacción
+      await prisma.$transaction([
+        prisma.postResult.deleteMany({
+          where: { resultId: result.id }
+        }),
+        prisma.postResult.createMany({
+          data: data.posts.map((post: any) => ({
+            resultId: result.id,
+            postId: post.id || null,
+            url: post.url || null,
+            thumbnail: post.thumbnail || null,
+            caption: post.caption || null,
+            reactions: post.reactions_count || 0,
+            comments: post.comments_count || 0,
+            shares: post.shares_count || 0,
+            views: post.views_count || 0,
+            scrapedAt: scraped_at ? new Date(scraped_at) : new Date(),
+          }))
+        })
+      ]);
+    }
+
 
     return NextResponse.json({ message: 'Webhook procesado con éxito' });
   } catch (error) {

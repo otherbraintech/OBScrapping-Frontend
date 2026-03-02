@@ -48,5 +48,31 @@ model ScrapeResult {
   request     ScrapeRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
   createdAt   DateTime      @default(now()) @map("created_at")
 
+  // Nueva relación para múltiples posts (cuando content_type == "page_feed")
+  posts PostResult[]
+
   @@map("scrape_results")
+}
+
+model PostResult {
+  id        String  @id @default(cuid())
+  postId    String? @map("post_id") // ID interno de FB
+  url       String? // URL directa de la publicación (/reel/ID/ o /posts/ID/)
+  thumbnail String?
+  caption   String? @db.Text
+
+  // Métricas específicas de cada post
+  reactions Int @default(0)
+  comments  Int @default(0)
+  shares    Int @default(0)
+  views     Int @default(0)
+
+  // Metadatos
+  scrapedAt DateTime @default(now()) @map("scraped_at")
+
+  // Relación con el resultado padre
+  resultId String       @map("result_id")
+  result   ScrapeResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+
+  @@map("post_results")
 }

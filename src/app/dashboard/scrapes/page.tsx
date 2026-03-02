@@ -39,7 +39,13 @@ export default async function ScrapesListPage() {
 
   const scrapes = await prisma.scrapeRequest.findMany({
     where: { userId: session.user.id },
-    include: { result: true },
+    include: { 
+      result: {
+        include: {
+          posts: true
+        }
+      } 
+    },
     orderBy: { createdAt: 'desc' },
   });
 
@@ -67,7 +73,7 @@ export default async function ScrapesListPage() {
               <TableHead className="text-zinc-400">URL / Contenido</TableHead>
               <TableHead className="text-zinc-400">Estado</TableHead>
               <TableHead className="text-zinc-400 hidden lg:table-cell">Red</TableHead>
-              <TableHead className="text-zinc-400 hidden md:table-cell">Métricas</TableHead>
+              <TableHead className="text-zinc-400 hidden md:table-cell">Resultados / Métricas</TableHead>
               <TableHead className="text-zinc-400">Fecha</TableHead>
               <TableHead className="text-right text-zinc-400">Acciones</TableHead>
             </TableRow>
@@ -85,7 +91,7 @@ export default async function ScrapesListPage() {
                   <TableCell className="font-medium max-w-[200px] lg:max-w-md">
                     <div className="flex flex-col space-y-1">
                       <span className="text-white truncate">{scrape.url}</span>
-                      <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{scrape.type}</span>
+                      <span className="text-[10px] text-zinc-500 uppercase tracking-wider">{scrape.result?.contentType || scrape.type}</span>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -105,30 +111,31 @@ export default async function ScrapesListPage() {
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {scrape.status === "success" && scrape.result ? (
-                      <div className="flex items-center gap-x-4 text-xs text-zinc-400">
-                        <span className="flex items-center" title="Reacciones">
-                          <TrendingUp size={14} className="mr-1.5 text-emerald-500" />
-                          {scrape.result.reactions}
-                        </span>
-                        <span className="flex items-center" title="Comentarios">
-                          <MessageSquare size={14} className="mr-1.5 text-blue-500" />
-                          {scrape.result.comments}
-                        </span>
-                        <span className="flex items-center" title="Compartidos">
-                          <Share2 size={14} className="mr-1.5 text-purple-500" />
-                          {scrape.result.shares}
-                        </span>
-                        {scrape.result.views > 0 && (
-                          <span className="flex items-center" title="Visualizaciones">
-                            <Eye size={14} className="mr-1.5 text-amber-500" />
-                            {scrape.result.views}
+                      scrape.result.contentType === "page_feed" ? (
+                        <Badge variant="secondary" className="bg-indigo-500/10 text-indigo-400 border-indigo-500/20 text-[10px]">
+                          {scrape.result.posts?.length || 0} publicaciones
+                        </Badge>
+                      ) : (
+                        <div className="flex items-center gap-x-4 text-xs text-zinc-400">
+                          <span className="flex items-center" title="Reacciones">
+                            <TrendingUp size={14} className="mr-1.5 text-emerald-500" />
+                            {scrape.result.reactions}
                           </span>
-                        )}
-                      </div>
+                          <span className="flex items-center" title="Comentarios">
+                            <MessageSquare size={14} className="mr-1.5 text-blue-500" />
+                            {scrape.result.comments}
+                          </span>
+                          <span className="flex items-center" title="Compartidos">
+                            <Share2 size={14} className="mr-1.5 text-purple-500" />
+                            {scrape.result.shares}
+                          </span>
+                        </div>
+                      )
                     ) : (
                       <span className="text-zinc-600 text-[10px]">Sin datos</span>
                     )}
                   </TableCell>
+
                   <TableCell className="text-zinc-500 text-xs" suppressHydrationWarning>
                     <div className="flex items-center">
                       <Calendar size={12} className="mr-1.5 text-zinc-400" />

@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect, notFound } from "next/navigation";
 import prisma from "@/lib/prisma";
+import { cn } from "@/lib/utils";
 
 export const dynamic = 'force-dynamic';
 import { 
@@ -19,8 +20,12 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
-  LucideLoader2
+  LucideLoader2,
+  LayoutGrid,
+  FileText,
+  BarChart2
 } from "lucide-react";
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,25 +48,27 @@ export default async function ScrapeDetailPage({
 
   const scrape = await prisma.scrapeRequest.findUnique({
     where: { id, userId: session.user.id },
-    include: { result: true },
+    include: { 
+      result: {
+        include: {
+          posts: true
+        }
+      } 
+    },
   });
 
   if (scrape) {
     console.log("DEBUG: Raw Scrape Data from DB:", JSON.stringify(scrape, null, 2));
-    if (scrape.result) {
-      console.log("DEBUG: Raw Scrape Result Content:", JSON.stringify(scrape.result.rawData, null, 2));
-      const rawData = scrape.result.rawData as any;
-      if (rawData?._debug?.html_snippet) {
-         console.log("DEBUG: HTML Snippet (Context):", rawData._debug.html_snippet);
-      }
-    }
   }
 
   if (!scrape) {
     notFound();
   }
 
-  const metrics = scrape.result ? [
+  const isPageFeed = scrape.result?.contentType === "page_feed";
+  const hasPosts = scrape.result?.posts && scrape.result.posts.length > 0;
+
+  const metrics = scrape.result && !isPageFeed ? [
     { label: "Reacciones", value: scrape.result.reactions, icon: TrendingUp, color: "text-emerald-400" },
     { label: "Comentarios", value: scrape.result.comments, icon: MessageSquare, color: "text-blue-400" },
     { label: "Compartidos", value: scrape.result.shares, icon: Share2, color: "text-indigo-400" },
@@ -145,7 +152,8 @@ export default async function ScrapeDetailPage({
         </Card>
       )}
 
-      {metrics.length > 0 && (
+      {/* Métricas Globales (Solo para post individual o reel) */}
+      {!isPageFeed && metrics.length > 0 && (
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {metrics.map((metric: any) => (
             <Card key={metric.label} className="bg-zinc-900 border-zinc-800 border overflow-hidden relative group">
@@ -161,6 +169,100 @@ export default async function ScrapeDetailPage({
           ))}
         </div>
       )}
+
+      {/* Grilla de Resultados Masivos (Páginas/Perfiles) */}
+      {isPageFeed && hasPosts && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-x-2 text-white">
+            <LayoutGrid size={20} className="text-indigo-400" />
+            <h3 className="text-xl font-bold">Publicaciones Detectadas</h3>
+            <Badge variant="secondary" className="ml-2 bg-indigo-500/20 text-indigo-400 border-none">
+              {scrape.result?.posts.length} posts
+            </Badge>
+          </div>
+          
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            {scrape.result?.posts.map((post: any) => (
+              <Card key={post.id} className="bg-zinc-900/50 border-zinc-800 overflow-hidden hover:border-indigo-500/50 transition-all group">
+                {post.thumbnail ? (
+                  <div className="aspect-video w-full overflow-hidden relative">
+                    <img 
+                      src={post.thumbnail} 
+                      alt="Thumbnail" 
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-900 to-transparent opacity-60"></div>
+                  </div>
+                ) : (
+                  <div className="aspect-video w-full bg-zinc-800 flex items-center justify-center">
+                    <FileText size={40} className="text-zinc-700" />
+                  </div>
+                )}
+                
+                <CardContent className="p-4 space-y-4">
+                  <p className="text-sm text-zinc-300 line-clamp-2 min-h-[2.5rem]">
+                    {post.caption || "Sin descripción"}
+                  </p>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-center gap-x-2 text-xs text-zinc-500">
+                      <TrendingUp size={14} className="text-emerald-500" />
+                      <span className="text-white font-bold">{post.reactions.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-x-2 text-xs text-zinc-500">
+                      <MessageSquare size={14} className="text-blue-500" />
+                      <span className="text-white font-bold">{post.comments.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-x-2 text-xs text-zinc-500">
+                      <Share2 size={14} className="text-indigo-500" />
+                      <span className="text-white font-bold">{post.shares.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center gap-x-2 text-xs text-zinc-500">
+                      <Eye size={14} className="text-amber-500" />
+                      <span className="text-white font-bold">{post.views.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-2 flex flex-wrap gap-2">
+                    {post.url && (
+                      <Button variant="link" className="p-0 h-auto text-xs text-indigo-400 hover:text-indigo-300 font-bold" asChild>
+                        <a href={post.url} target="_blank" rel="noopener noreferrer">
+                          Ver Original <ExternalLink size={10} className="ml-1" />
+                        </a>
+                      </Button>
+                    )}
+                    
+                    {post.url && (
+                      <Button variant="outline" size="sm" className="h-7 text-[10px] border-zinc-700 bg-zinc-800 text-zinc-300 hover:text-white hover:border-indigo-500 transition-colors" asChild>
+                        <Link href={`/dashboard/scrapes/new?url=${encodeURIComponent(post.url)}&type=reel`}>
+                          <BarChart2 size={10} className="mr-1" /> Análisis Detallado
+                        </Link>
+                      </Button>
+                    )}
+                  </div>
+
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isPageFeed && !hasPosts && (
+        <Card className="bg-zinc-900 border-zinc-800 border-dashed">
+          <CardContent className="py-12 flex flex-col items-center text-center space-y-4">
+            <Search size={48} className="text-zinc-700" />
+            <div className="space-y-1">
+              <p className="text-white font-bold">No se detectaron publicaciones</p>
+              <p className="text-sm text-zinc-500 max-w-md">
+                El perfil parece no tener publicaciones recientes o el scraper no pudo extraerlas en esta ejecución.
+              </p>
+            </div>
+            <RetryButton id={scrape.id} />
+          </CardContent>
+        </Card>
+      )}
+
 
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
          <Card className="bg-zinc-900 border-zinc-800">
@@ -225,6 +327,3 @@ export default async function ScrapeDetailPage({
   );
 }
 
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
-}

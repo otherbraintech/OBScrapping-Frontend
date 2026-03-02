@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { 
   Card, 
   CardContent, 
@@ -21,44 +21,43 @@ import {
 } from "@/components/ui/tabs";
 import { LucideLoader2, Search, Link as LinkIcon, Globe } from "lucide-react";
 
-export default function NewScrapePage() {
+function NewScrapeForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [network, setNetwork] = useState("facebook");
   const [type, setType] = useState("reel");
+  const [urlValue, setUrlValue] = useState("");
+
+  useEffect(() => {
+    const urlParam = searchParams.get("url");
+    const typeParam = searchParams.get("type");
+    const networkParam = searchParams.get("network");
+
+    if (urlParam) setUrlValue(urlParam);
+    if (typeParam) setType(typeParam as any);
+    if (networkParam) setNetwork(networkParam as any);
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (loading) return; // Prevent double submit
+    if (loading) return; 
     
     setLoading(true);
     setError("");
 
-    const formData = new FormData(e.currentTarget);
-    const url = formData.get("url");
-    const networkVal = formData.get("network") || network;
-    const typeVal = formData.get("type") || type;
-
     try {
       const res = await fetch("/api/scrapes", {
         method: "POST",
-        body: JSON.stringify({ url, network: networkVal, type: typeVal }),
+        body: JSON.stringify({ url: urlValue, network, type }),
         headers: { "Content-Type": "application/json" },
       });
 
       const data = await res.json();
-      console.log("DEBUG: Scrape response:", data);
-
-      if (!res.ok) {
-        throw new Error(data.error || data.details || "Error al iniciar el scrape");
-      }
-
-      // Redirigimos sin actualizar setLoading(false) para evitar race conditions
-      // El componente se desmontará al navegar.
+      if (!res.ok) throw new Error(data.error || data.details || "Error al iniciar el scrape");
       router.push("/dashboard/scrapes");
     } catch (err: any) {
-      console.error("DEBUG: Submit error:", err);
       setError(err.message);
       setLoading(false);
     }
@@ -101,8 +100,10 @@ export default function NewScrapePage() {
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500 pointer-events-none"></div>
                 <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-zinc-500 group-focus-within:text-indigo-400 transition-colors pointer-events-none" />
                 <Input 
-                   id="url" 
+                  id="url" 
                   name="url" 
+                  value={urlValue}
+                  onChange={(e) => setUrlValue(e.target.value)}
                   placeholder="https://www.facebook.com/share/r/..." 
                   required 
                   className="bg-zinc-950/50 border-zinc-800 h-14 text-white pl-12 rounded-xl focus-visible:ring-indigo-500/50 focus-visible:ring-offset-0 focus-visible:border-indigo-500/50 transition-all border-2"
@@ -129,20 +130,20 @@ export default function NewScrapePage() {
                 <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Formato</Label>
                 <Tabs value={type} onValueChange={setType} className="w-full">
                   <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl">
-                    <TabsTrigger value="reel" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                    <TabsTrigger value="reel" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
                       Reel
                     </TabsTrigger>
-                    <TabsTrigger value="post" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                    <TabsTrigger value="post" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
                       Post
+                    </TabsTrigger>
+                    <TabsTrigger value="page_feed" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
+                      Perfil
                     </TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
             </div>
 
-            <input type="hidden" name="network" value={network} />
-            <input type="hidden" name="type" value={type} />
-            
             <div className="p-6 rounded-2xl border border-indigo-500/10 bg-indigo-500/5 flex gap-x-5 relative overflow-hidden group">
                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
                   <Globe size={80} className="text-indigo-400 rotate-12" />
@@ -178,3 +179,16 @@ export default function NewScrapePage() {
     </div>
   );
 }
+
+export default function NewScrapePage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-64">
+        <LucideLoader2 className="h-8 w-8 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <NewScrapeForm />
+    </Suspense>
+  );
+}
+
