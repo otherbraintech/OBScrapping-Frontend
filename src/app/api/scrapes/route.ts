@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { url, type, network } = await req.json();
+    const { url, type, network, scrollCount } = await req.json();
 
     if (!url) {
       return NextResponse.json({ error: 'La URL es requerida' }, { status: 400 });
@@ -23,8 +23,8 @@ export async function POST(req: Request) {
     const scrapeRequest = await prisma.scrapeRequest.create({
       data: {
         url,
-        type: type || 'reel',
-        network: network || 'facebook',
+        type: type ?? 'reel',
+        network: network ?? 'facebook',
         status: 'pending',
         userId: session.user.id,
       },
@@ -39,8 +39,9 @@ export async function POST(req: Request) {
         },
         body: JSON.stringify({
           url,
-          type: type || 'reel',
-          network: network || 'facebook',
+          type: type ?? 'reel',
+          network: network ?? 'facebook',
+          scroll_count: scrollCount ?? 5,
         }),
       });
 

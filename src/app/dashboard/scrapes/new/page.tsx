@@ -19,7 +19,8 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { LucideLoader2, Search, Link as LinkIcon, Globe } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { LucideLoader2, Search, Link as LinkIcon, Globe, ChevronDown, ListFilter, PlayCircle, UserCircle, Zap, Settings2 } from "lucide-react";
 
 function NewScrapeForm() {
   const [loading, setLoading] = useState(false);
@@ -27,8 +28,10 @@ function NewScrapeForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [network, setNetwork] = useState("facebook");
-  const [type, setType] = useState("reel");
+  const [type, setType] = useState("auto");
   const [urlValue, setUrlValue] = useState("");
+  const [scrollCount, setScrollCount] = useState(5);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     const urlParam = searchParams.get("url");
@@ -48,9 +51,16 @@ function NewScrapeForm() {
     setError("");
 
     try {
+      const typeToSend = type === "auto" ? null : (type === "video" ? "reel" : type);
+      
       const res = await fetch("/api/scrapes", {
         method: "POST",
-        body: JSON.stringify({ url: urlValue, network, type }),
+        body: JSON.stringify({ 
+          url: urlValue, 
+          network, 
+          type: typeToSend,
+          scrollCount: type === "page_feed" ? scrollCount : 0 
+        }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -94,7 +104,125 @@ function NewScrapeForm() {
               </div>
             )}
             
-            <div className="space-y-3">
+            <div className="space-y-6">
+              <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Selecciona Modo de Extracción</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Card Auto */}
+                <div 
+                  onClick={() => setType("auto")}
+                  className={cn(
+                    "p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 relative overflow-hidden group",
+                    type === "auto" ? "bg-indigo-500/10 border-indigo-500 shadow-lg glow-indigo" : "bg-zinc-950/50 border-zinc-800 hover:border-zinc-700"
+                  )}
+                >
+                  <div className="flex flex-col gap-y-3 relative z-10">
+                    <div className={cn("p-2 rounded-lg w-fit transition-colors", type === "auto" ? "bg-indigo-500 text-white" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700")}>
+                      <Zap size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">Auto-detección</h4>
+                      <p className="text-xs text-zinc-500 mt-1">Nuestra IA elige el mejor scraper basado en la URL.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Page Feed */}
+                <div 
+                  onClick={() => setType("page_feed")}
+                  className={cn(
+                    "p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 relative overflow-hidden group",
+                    type === "page_feed" ? "bg-emerald-500/10 border-emerald-500 shadow-lg glow-emerald" : "bg-zinc-950/50 border-zinc-800 hover:border-zinc-700"
+                  )}
+                >
+                  <div className="flex flex-col gap-y-3 relative z-10">
+                    <div className={cn("p-2 rounded-lg w-fit transition-colors", type === "page_feed" ? "bg-emerald-500 text-white" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700")}>
+                      <ListFilter size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">Scraping de Página</h4>
+                      <p className="text-xs text-zinc-500 mt-1">Extrae múltiples publicaciones de un perfil o fanpage.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Single Item */}
+                <div 
+                  onClick={() => setType("reel")}
+                  className={cn(
+                    "p-5 rounded-2xl border-2 cursor-pointer transition-all duration-300 relative overflow-hidden group",
+                    (type === "reel" || type === "post" || type === "video") ? "bg-blue-500/10 border-blue-500 shadow-lg" : "bg-zinc-950/50 border-zinc-800 hover:border-zinc-700"
+                  )}
+                >
+                  <div className="flex flex-col gap-y-3 relative z-10">
+                    <div className={cn("p-2 rounded-lg w-fit transition-colors", (type === "reel" || type === "post" || type === "video") ? "bg-blue-500 text-white" : "bg-zinc-800 text-zinc-400 group-hover:bg-zinc-700")}>
+                      <PlayCircle size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white">Análisis Individual</h4>
+                      <p className="text-xs text-zinc-500 mt-1">Métricas profundas de un solo Reel, Video o Post.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Sub-opciones para Análisis Individual */}
+              {(type === "reel" || type === "post" || type === "video") && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                  <div className="flex gap-2 p-1 bg-zinc-950 border border-zinc-800 rounded-xl w-fit">
+                    <button 
+                      type="button"
+                      onClick={() => setType("reel")}
+                      className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", type === "reel" ? "bg-blue-600 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300")}
+                    >
+                      Reel
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setType("post")}
+                      className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", type === "post" ? "bg-blue-600 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300")}
+                    >
+                      Post
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => setType("video")}
+                      className={cn("px-4 py-2 rounded-lg text-xs font-bold transition-all", type === "video" ? "bg-blue-600 text-white shadow-lg" : "text-zinc-500 hover:text-zinc-300")}
+                    >
+                      Video FB
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Ajustes Avanzados para Page Feed */}
+              {type === "page_feed" && (
+                <div className="p-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 animate-in zoom-in-95 duration-300 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-x-2 text-emerald-400">
+                      <Settings2 size={16} />
+                      <span className="text-sm font-bold uppercase tracking-wider">Ajustes de Extracción Masiva</span>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <Label className="text-xs text-zinc-400">Profundidad de Búsqueda (Scrolls)</Label>
+                      <span className="text-emerald-400 font-mono font-bold bg-emerald-400/10 px-2 py-0.5 rounded text-sm">{scrollCount}</span>
+                    </div>
+                    <input 
+                      type="range" 
+                      min="1" 
+                      max="20" 
+                      value={scrollCount}
+                      onChange={(e) => setScrollCount(parseInt(e.target.value))}
+                      className="w-full h-2 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                    />
+                    <p className="text-[10px] text-zinc-500 italic">Un valor más alto extraerá más publicaciones pero tomará más tiempo.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
               <Label htmlFor="url" className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">URL de Destino</Label>
               <div className="relative group">
                 <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl blur opacity-0 group-focus-within:opacity-20 transition duration-500 pointer-events-none"></div>
@@ -104,44 +232,25 @@ function NewScrapeForm() {
                   name="url" 
                   value={urlValue}
                   onChange={(e) => setUrlValue(e.target.value)}
-                  placeholder="https://www.facebook.com/share/r/..." 
+                  placeholder={type === "page_feed" ? "https://www.facebook.com/PAGINA" : "https://www.facebook.com/reel/..."} 
                   required 
                   className="bg-zinc-950/50 border-zinc-800 h-14 text-white pl-12 rounded-xl focus-visible:ring-indigo-500/50 focus-visible:ring-offset-0 focus-visible:border-indigo-500/50 transition-all border-2"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Fuente de Datos</Label>
-                <Tabs value={network} onValueChange={setNetwork} className="w-full">
-                  <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl">
-                    <TabsTrigger value="facebook" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
-                      Facebook
-                    </TabsTrigger>
-                    <TabsTrigger value="instagram" disabled className="flex-1 opacity-50 cursor-not-allowed">
-                      Instagram
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
-
-              <div className="space-y-3">
-                <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Formato</Label>
-                <Tabs value={type} onValueChange={setType} className="w-full">
-                  <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl">
-                    <TabsTrigger value="reel" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
-                      Reel
-                    </TabsTrigger>
-                    <TabsTrigger value="post" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
-                      Post
-                    </TabsTrigger>
-                    <TabsTrigger value="page_feed" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all text-xs md:text-sm">
-                      Perfil
-                    </TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              </div>
+            <div className="space-y-3">
+              <Label className="text-sm font-bold text-zinc-400 uppercase tracking-widest pl-1">Fuente de Datos</Label>
+              <Tabs value={network} onValueChange={setNetwork} className="w-full">
+                <TabsList className="bg-zinc-950 border-2 border-zinc-800 w-full h-14 p-1 rounded-xl max-w-md">
+                  <TabsTrigger value="facebook" className="flex-1 h-full rounded-lg data-[state=active]:bg-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all">
+                    Facebook
+                  </TabsTrigger>
+                  <TabsTrigger value="instagram" disabled className="flex-1 opacity-50 cursor-not-allowed">
+                    Instagram
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
             </div>
 
             <div className="p-6 rounded-2xl border border-indigo-500/10 bg-indigo-500/5 flex gap-x-5 relative overflow-hidden group">
