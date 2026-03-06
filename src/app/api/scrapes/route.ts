@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
     }
 
-    const { url, type, network, scrollCount } = await req.json();
+    const { url, type, network, scrollCount, dumpAll } = await req.json();
 
     if (!url) {
       return NextResponse.json({ error: 'La URL es requerida' }, { status: 400 });
@@ -42,6 +42,7 @@ export async function POST(req: Request) {
           type: type ?? 'reel',
           network: network ?? 'facebook',
           scroll_count: scrollCount ?? 5,
+          dump_all: dumpAll ?? false,
         }),
       });
 

@@ -31,6 +31,7 @@ function NewScrapeForm() {
   const [type, setType] = useState("auto");
   const [urlValue, setUrlValue] = useState("");
   const [scrollCount, setScrollCount] = useState(5);
+  const [dumpAll, setDumpAll] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
@@ -59,7 +60,8 @@ function NewScrapeForm() {
           url: urlValue, 
           network, 
           type: typeToSend,
-          scrollCount: type === "page_feed" ? scrollCount : 0 
+          scrollCount: type === "page_feed" ? scrollCount : 0,
+          dumpAll: dumpAll
         }),
         headers: { "Content-Type": "application/json" },
       });
@@ -220,6 +222,30 @@ function NewScrapeForm() {
                   </div>
                 </div>
               )}
+
+              {/* Debug Mode Toggle */}
+              <div className="flex items-center justify-between p-4 rounded-2xl border border-zinc-800 bg-zinc-950 hover:border-indigo-500/30 transition-all group">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center gap-2">
+                    <Settings2 size={16} className="text-indigo-400" />
+                    <span className="text-sm font-bold text-white">Modo Auditoría (Dump All)</span>
+                  </div>
+                  <p className="text-[10px] text-zinc-500">Captura el HTML crudo para depuración técnica.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setDumpAll(!dumpAll)}
+                  className={cn(
+                    "w-12 h-6 rounded-full transition-all relative flex items-center px-1",
+                    dumpAll ? "bg-indigo-600" : "bg-zinc-800"
+                  )}
+                >
+                  <div className={cn(
+                    "w-4 h-4 bg-white rounded-full transition-all shadow-md",
+                    dumpAll ? "translate-x-6" : "translate-x-0"
+                  )} />
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4">
