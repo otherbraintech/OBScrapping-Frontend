@@ -125,17 +125,30 @@ export default async function ScrapeDetailPage({
 
       {scrape.status === "error" && scrape.result?.error && (
         <Card className="bg-red-500/5 border-red-500/20">
-          <CardContent className="pt-6 flex items-start gap-x-4">
-             <AlertCircle className="text-red-500 shrink-0" size={24} />
+          <CardContent className="pt-6 flex flex-col gap-y-4">
+            <div className="flex items-start gap-x-4">
+              <AlertCircle className="text-red-500 shrink-0" size={24} />
               <div className="flex justify-between items-start w-full">
-                 <div className="space-y-1">
-                    <p className="font-bold text-red-500">Error en el procesamiento</p>
-                    <p className="text-sm text-red-400/80 leading-relaxed">
-                       {scrape.result.error}
-                    </p>
-                 </div>
-                 <RetryButton id={scrape.id} variant="default" className="bg-red-600 hover:bg-red-700 text-white border-none shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-bold text-red-500">Error en el procesamiento</p>
+                  <p className="text-sm text-red-400/80 leading-relaxed font-mono">
+                    {scrape.result.error}
+                  </p>
+                </div>
+                <RetryButton id={scrape.id} variant="default" className="bg-red-600 hover:bg-red-700 text-white border-none shrink-0" />
               </div>
+            </div>
+            
+            <div className="pt-4 border-t border-red-500/10 grid grid-cols-1 md:grid-cols-2 gap-4 text-[10px] text-red-400/60 uppercase tracking-widest font-bold">
+              <div className="flex flex-col">
+                <span>Task ID Relacionado</span>
+                <span className="text-red-400 font-mono mt-1">{scrape.taskId || 'Desconocido'}</span>
+              </div>
+              <div className="flex flex-col">
+                <span>Timestamp del Error</span>
+                <span className="text-red-400 font-mono mt-1">{scrape.result.scrapedAt ? new Date(scrape.result.scrapedAt).toLocaleString() : 'No disponible'}</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -323,6 +336,26 @@ export default async function ScrapeDetailPage({
             </CardContent>
          </Card>
       </div>
+
+      {/* Sección de Auditoría / Debug */}
+      <Card className="bg-zinc-950 border-zinc-800">
+        <CardHeader className="border-b border-zinc-900">
+          <CardTitle className="text-lg text-white font-bold flex items-center">
+            <Search className="mr-2 h-5 w-5 text-amber-400" />
+            Datos de Auditoría (Raw JSON)
+          </CardTitle>
+          <CardDescription>
+            Inspección detallada de los datos crudos devueltos por la versión 1.2.5.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="max-h-[500px] overflow-auto p-4 bg-zinc-950">
+            <pre className="text-[11px] text-zinc-400 font-mono leading-relaxed">
+              {JSON.stringify(scrape.result?.rawData || { status: "No raw data captured" }, null, 2)}
+            </pre>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

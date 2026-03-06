@@ -46,6 +46,8 @@ export async function POST(
           url: scrapeRequest.url,
           type: scrapeRequest.type,
           network: scrapeRequest.network,
+          dump_all: true,
+          scroll_count: 5,
         }),
       });
 
